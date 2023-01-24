@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: sample-ingress
+  namespace: default
+  annotations:
+    ingress.kubernetes.io/force-ssl-redirect: 'true'
+    ingress.kubernetes.io/secure-backends: 'true'
+    ingress.kubernetes.io/ssl-redirect: 'true'
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/server-snippet: |
+      location  ~ "^/(.*)" {
+          proxy_set_header X-Forwarded-Host $host;
+          proxy_set_header X-Forwarded-Server $host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_set_header X-Forwarded-Proto https;
+          proxy_set_header X-Real-IP $remote_addr;
+          proxy_pass http://{IP}:{PORT};
+      }
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: host.com
